@@ -11,6 +11,7 @@ import { Mail, Lock, ArrowLeft, User, MapPin, Camera, Phone } from 'lucide-react
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { INDIAN_STATES, CITIES_BY_STATE } from '@/data/indian_locations';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -352,24 +353,42 @@ const Auth = () => {
                   {/* City and State Row */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        type="text"
-                        placeholder="Mumbai"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
                       <Label htmlFor="state">State *</Label>
-                      <Input
-                        id="state"
-                        type="text"
-                        placeholder="Maharashtra"
+                      <Select
                         value={state}
-                        onChange={(e) => setState(e.target.value)}
-                      />
+                        onValueChange={(value) => {
+                          setState(value);
+                          setCity('');
+                        }}
+                      >
+                        <SelectTrigger id="state">
+                          <SelectValue placeholder="Select State" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px]">
+                          {INDIAN_STATES.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City *</Label>
+                      <Select
+                        value={city}
+                        onValueChange={setCity}
+                        disabled={!state}
+                      >
+                        <SelectTrigger id="city">
+                          <SelectValue placeholder={state ? "Select City" : "Select State first"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px]">
+                          {state && CITIES_BY_STATE[state]?.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                          {!state && <SelectItem value="placeholder" disabled>Select State first</SelectItem>}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 

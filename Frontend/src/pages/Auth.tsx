@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { INDIAN_STATES, CITIES_BY_STATE } from '@/data/indian_locations';
+// @ts-ignore
 import MojoAuth from 'mojoauth-web-sdk';
 import { initMojoAuth } from '@/lib/mojoauth';
 

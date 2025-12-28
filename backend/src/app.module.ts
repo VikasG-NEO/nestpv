@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
@@ -10,21 +14,28 @@ import { BankAccountsModule } from './bank-accounts/bank-accounts.module';
 import { CommunitiesModule } from './communities/communities.module';
 import { AdminModule } from './admin/admin.module';
 import { TransactionsModule } from './transactions/transactions.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
+    // Load .env explicitly
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
+
+    // MongoDB connection
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-      }),
-      inject: [ConfigService],
+      useFactory: () => {
+        if (!process.env.MONGODB_URI) {
+          throw new Error('❌ MONGODB_URI is not defined in .env');
+        }
+
+        return {
+          uri: process.env.MONGODB_URI,
+        };
+      },
     }),
+
     AuthModule,
     UsersModule,
     CompaniesModule,
@@ -33,7 +44,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     BankAccountsModule,
     CommunitiesModule,
     AdminModule,
-    TransactionsModule
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,6 +14,8 @@ if (Test-Path "Frontend/dist") {
 Write-Host "Step 1: Building Frontend (Fresh)..."
 Set-Location "Frontend"
 npm install
+# Set API URL for production
+"VITE_API_URL=https://nestunion.in" | Out-File -FilePath .env -Encoding utf8
 npm run build
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Build failed!"

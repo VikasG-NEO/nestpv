@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { User, Phone, MapPin, Calendar, Shield, Download, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import QRCode from 'react-qr-code';
 
 interface ProfileData {
   fullName: string;
@@ -17,6 +18,7 @@ interface ProfileData {
   state: string;
   country: string;
   photo: string;
+  community?: string;
   nestId?: string;
   memberId?: string;
   createdAt?: string;
@@ -81,7 +83,7 @@ export function IDCard({ profile }: IDCardProps) {
                 Member ID
               </Badge>
             </div>
-            <p className="text-xs text-white/70 mt-1">Worker Community Card</p>
+            <p className="text-xs text-white/70 mt-1">{profile.community || 'Worker Community'} Card</p>
           </div>
 
           {/* Main content */}
@@ -107,6 +109,7 @@ export function IDCard({ profile }: IDCardProps) {
               {/* Details */}
               <div className="flex-1 min-w-0">
                 <h2 className="text-xl font-bold text-foreground truncate">{profile.fullName}</h2>
+                <Badge variant="outline" className="mb-2 border-primary/20 text-primary bg-primary/5">{profile.community || 'Member'}</Badge>
                 <p className="text-sm text-muted-foreground mb-3">{profile.email}</p>
 
                 <div className="space-y-2">
@@ -141,10 +144,19 @@ export function IDCard({ profile }: IDCardProps) {
               <div>
                 <p className="text-xs text-muted-foreground">Member ID</p>
                 <p className="font-mono font-bold text-primary text-sm">{memberId}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Issue Date</p>
+                <p className="text-xs text-muted-foreground mt-1">Issue Date</p>
                 <p className="text-sm text-foreground">{joinDate}</p>
+              </div>
+
+              {/* QR Code */}
+              <div className="bg-white p-1 rounded-sm border border-border/20 shadow-sm">
+                <QRCode
+                  value={`https://nestunion.in/verify/${memberId}`}
+                  size={64}
+                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                  viewBox={`0 0 256 256`}
+                  level="M"
+                />
               </div>
             </div>
           </div>

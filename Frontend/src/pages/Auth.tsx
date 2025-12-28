@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, ArrowLeft, User, MapPin, Camera, Phone } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, User, MapPin, Camera, Phone, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,8 +26,11 @@ const Auth = () => {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
-  const [country, setCountry] = useState('');
+  const [country, setCountry] = useState('India');
   const [photo, setPhoto] = useState<string | null>(null);
+  const [community, setCommunity] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [generatedId, setGeneratedId] = useState('');
 
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
@@ -92,10 +95,10 @@ const Auth = () => {
     e.preventDefault();
 
     // Validate required fields
-    if (!email || !password || !fullName || !signupPhone || !age || !gender || !address || !city || !state || !country) {
+    if (!email || !password || !fullName || !signupPhone || !age || !gender || !address || !city || !state || !country || !community) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all fields including profession",
         variant: "destructive",
       });
       return;
@@ -131,7 +134,7 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      await signUp({
+      const result = await signUp({
         email,
         password,
         fullName,
@@ -142,13 +145,30 @@ const Auth = () => {
         city,
         state,
         country,
-        photo
+        photo,
+        community // Send profession/community
       });
-      toast({
-        title: "Account created!",
-        description: "Welcome to NestUnion. Your ID card will be generated.",
-      });
-      navigate('/dashboard');
+
+      // Calculate ID for display (optional, if backend returns it immediately)
+      // Assuming signUp returns user object or we fetch it.
+      // For immediate UI feedback:
+      const year = new Date().getFullYear().toString().slice(-2);
+      const communityMap: Record<string, string> = {
+        'auto': 'AUT', 'dukandar': 'DUK', 'labour': 'LAB', 'taxi': 'TAX',
+        'farmer': 'FRM', 'delivery': 'DEL', 'electrician': 'ELE', 'plumber': 'PLU', 'other': 'OTH'
+      };
+      const code = communityMap[community.toLowerCase()] || 'GEN';
+      // We don't have the sequence from backend yet unless signUp returns it.
+      // We'll show a placeholder or wait for redirect.
+
+      setGeneratedId(`NN-${code}-${year}-XXXX`);
+      setShowSuccess(true);
+
+      // Delay redirect to show success message
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
+
     } catch (error: any) {
       toast({
         title: "Sign up failed",
@@ -159,6 +179,31 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md border-border/50 shadow-2xl animate-in fade-in zoom-in-95 duration-500 text-center p-6">
+          <CardHeader>
+            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <CardTitle className="text-2xl font-bold text-green-700">Account Created Successfully!</CardTitle>
+            <CardDescription className="text-lg mt-2">
+              Your NestUnion ID has been generated.<br />
+              You can now access all services.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">Your digital ID will be ready in a few seconds.</p>
+            <div className="flex justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -240,6 +285,22 @@ const Auth = () => {
                       onChange={handlePhotoUpload}
                       className="hidden"
                     />
+                  </div>
+
+                  {/* Profession Selection */}
+                  <div className="space-y-4 border rounded-lg p-4 bg-muted/30">
+                    <Label className="text-base font-semibold">Choose Your Profession *</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {['Labour', 'Auto Driver', 'Electrician', 'Plumber', 'Farmer', 'Dukandar', 'Delivery Partner', 'Other'].map((prof) => (
+                        <div
+                          key={prof}
+                          onClick={() => setCommunity(prof)}
+                          className={`cursor-pointer border rounded-md p-3 text-center transition-all hover:border-primary ${community === prof ? 'border-primary bg-primary/10 ring-2 ring-primary/20' : 'bg-background hover:bg-accent'}`}
+                        >
+                          <p className="text-sm font-medium">{prof}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Full Name */}

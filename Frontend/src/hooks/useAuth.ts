@@ -112,6 +112,30 @@ export function useAuth() {
     signIn,
     signUp,
     signInWithGoogle,
+    loginWithMojoToken,
     signOut,
   };
+
+  async function loginWithMojoToken(token: string, email: string) {
+    setLoading(true);
+    try {
+      const res = await fetchAPI('/auth/mojo-login', {
+        method: 'POST',
+        body: JSON.stringify({ email, mojoToken: token }),
+      });
+
+      if (res.access_token) {
+        localStorage.setItem('token', res.access_token);
+        await fetchProfile();
+        return { success: true };
+      } else if (res.isNewUser) {
+        return { isNewUser: true, email: res.email };
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }
 }

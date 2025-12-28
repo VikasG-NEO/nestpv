@@ -37,4 +37,26 @@ export class AuthService {
         }
         return this.usersService.create(user);
     }
+
+    async validateMojoUser(email: string): Promise<any> {
+        return this.usersService.findByEmail(email);
+    }
+
+    async loginWithMojo(email: string) {
+        let user = await this.usersService.findByEmail(email);
+        if (!user) {
+            // User doesn't exist yet properly, maybe return specific flag?
+            // Or create a partial user?
+            // For now, return null to indicate "Signup Needed"
+            return null;
+        }
+
+        const userObj = user instanceof Object && 'toObject' in user ? (user as any).toObject() : user;
+        const id = userObj._id || userObj.id;
+        const payload = { email: user.email, sub: id, role: user.role };
+        return {
+            access_token: this.jwtService.sign(payload),
+            user: userObj
+        };
+    }
 }

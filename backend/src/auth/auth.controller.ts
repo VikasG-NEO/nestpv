@@ -15,6 +15,18 @@ export class AuthController {
         return this.authService.login(user);
     }
 
+    @Post('mojo-login')
+    async mojoLogin(@Body() body: { email: string, mojoToken?: string }) {
+        // TODO: Verify mojoToken signature using JWKS
+        // For now, if we get an email, we try to log them in.
+        const result = await this.authService.loginWithMojo(body.email);
+        if (!result) {
+            // User not found, frontend should redirect to signup
+            return { isNewUser: true, email: body.email };
+        }
+        return result;
+    }
+
     @Post('register')
     async register(@Body() createUserDto: any) {
         return this.authService.register(createUserDto);

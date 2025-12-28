@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { INDIAN_STATES, CITIES_BY_STATE } from '@/data/indian_locations';
+import MojoAuth from 'mojoauth-web-sdk';
+import { initMojoAuth } from '@/lib/mojoauth';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -32,7 +34,9 @@ const Auth = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [generatedId, setGeneratedId] = useState('');
 
-  const { signIn, signUp, user } = useAuth();
+
+
+  const { signIn, signUp, user, loginWithMojoToken } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -61,35 +65,33 @@ const Auth = () => {
     return null;
   }
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signIn(email, password);
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message || "No backend connected. Please connect a backend service.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // MojoAuth Login Setup
+  useEffect(() => {
+    const mojoauth = initMojoAuth();
+    mojoauth.signIn().then(async (payload: any) => {
+      if (payload?.oauth?.access_token) {
+        // Need to verify this on backend
+        // Or use the id_token if available
+        // For now, let's assume we use the access_token
+        try {
+          const res = await loginWithMojoToken(payload.oauth.access_token, payload.user.email);
+          if (res?.success) {
+            toast({ title: "Welcome back!", description: "Successfully logged in via MojoAuth." });
+            navigate('/');
+          } else if (res?.isNewUser) {
+            toast({ title: "Account not found", description: "Please complete your profile to sign up." });
+            setEmail(res.email); // Pre-fill email
+            // Switch to signup tab? Or just let them fill it.
+            // Ideally we should switch tab
+            const signupTab = document.querySelector('[data-value="signup"]') as HTMLElement;
+            if (signupTab) signupTab.click();
+          }
+        } catch (e) {
+          toast({ title: "Login Failed", description: "Could not verify MojoAuth token", variant: "destructive" });
+        }
+      }
+    });
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -229,39 +231,9 @@ const Auth = () => {
               </TabsList>
 
               <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </form>
+                <TabsContent value="signin">
+                  <div id="mojoauth-passwordless-form"></div>
+                </TabsContent>
               </TabsContent>
 
               <TabsContent value="signup">

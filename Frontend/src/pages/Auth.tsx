@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { INDIAN_STATES, CITIES_BY_STATE } from '@/data/indian_locations';
 // @ts-ignore
-import MojoAuth from 'mojoauth-web-sdk';
 import { initMojoAuth } from '@/lib/mojoauth';
 
 const Auth = () => {
@@ -37,7 +36,7 @@ const Auth = () => {
 
 
 
-  const { signIn, signUp, user, loginWithMojoToken } = useAuth();
+  const { signUp, user, loginWithMojoToken } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 

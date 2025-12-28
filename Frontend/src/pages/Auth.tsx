@@ -134,7 +134,7 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const result = await signUp({
+      await signUp({
         email,
         password,
         fullName,
@@ -190,7 +190,7 @@ const Auth = () => {
             </div>
             <CardTitle className="text-2xl font-bold text-green-700">Account Created Successfully!</CardTitle>
             <CardDescription className="text-lg mt-2">
-              Your NestUnion ID has been generated.<br />
+              Your NestUnion ID has been generated: <span className="font-bold text-primary block mt-1 text-xl">{generatedId}</span>
               You can now access all services.
             </CardDescription>
           </CardHeader>

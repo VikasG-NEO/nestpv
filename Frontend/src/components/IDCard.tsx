@@ -11,13 +11,13 @@ interface ProfileData {
   fullName: string;
   email: string;
   phone: string;
-  age: number;
-  gender: string;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  photo: string;
+  age?: number;
+  gender?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  photo?: string;
   community?: string;
   nestId?: string;
   memberId?: string;
@@ -33,9 +33,9 @@ export function IDCard({ profile }: IDCardProps) {
   const [downloading, setDownloading] = useState(false);
 
   const memberId = profile.nestId || profile.memberId || `NU${Date.now().toString().slice(-8)}`;
-  const joinDate = profile.createdAt
-    ? new Date(profile.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
-    : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+  const joinYear = profile.createdAt
+    ? new Date(profile.createdAt).getFullYear()
+    : new Date().getFullYear();
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -120,13 +120,13 @@ export function IDCard({ profile }: IDCardProps) {
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-accent shrink-0" />
                     <span className="text-foreground">
-                      {profile.age} years • {profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}
+                      {profile.age ? `${profile.age} years` : 'Age N/A'}{profile.gender ? ` • ${profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)}` : ''}
                     </span>
                   </div>
                   <div className="flex items-start gap-2 text-sm">
                     <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                     <span className="text-foreground leading-snug">
-                      {profile.city}, {profile.state}, {profile.country}
+                      {[profile.city, profile.state, profile.country].filter(Boolean).join(', ') || 'Location N/A'}
                     </span>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export function IDCard({ profile }: IDCardProps) {
             {/* Address section */}
             <div className="mt-4 pt-4 border-t border-border">
               <p className="text-xs text-muted-foreground mb-1">Address</p>
-              <p className="text-sm text-foreground">{profile.address}</p>
+              <p className="text-sm text-foreground">{profile.address || 'Address not provided'}</p>
             </div>
 
             {/* Footer with ID and date */}
@@ -144,8 +144,8 @@ export function IDCard({ profile }: IDCardProps) {
               <div>
                 <p className="text-xs text-muted-foreground">Member ID</p>
                 <p className="font-mono font-bold text-primary text-sm">{memberId}</p>
-                <p className="text-xs text-muted-foreground mt-1">Issue Date</p>
-                <p className="text-sm text-foreground">{joinDate}</p>
+                <p className="text-xs text-muted-foreground mt-1">Year of Join</p>
+                <p className="text-sm text-foreground">{joinYear}</p>
               </div>
 
               {/* QR Code */}

@@ -12,6 +12,7 @@ export interface User {
   role?: string;
   nestId?: string;
   community?: string;
+  isDocumentVerified?: boolean;
 }
 
 export function useAuth() {
@@ -39,7 +40,8 @@ export function useAuth() {
           phoneNumber: profile.phone || profile.mobile,
           role: profile.role,
           nestId: profile.nestId,
-          community: profile.community
+          community: profile.community,
+          isDocumentVerified: profile.isDocumentVerified
         });
       }
     } catch (error) {

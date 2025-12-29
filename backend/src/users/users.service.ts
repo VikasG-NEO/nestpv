@@ -53,4 +53,12 @@ export class UsersService {
     async update(id: string, updateUserDto: any): Promise<User | null> {
         return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
     }
+
+    async findByNestId(nestId: string): Promise<User | null> {
+        return this.userModel.findOne({ nestId }).select('fullName photo community nestId createdAt isEmailVerified').exec();
+    }
+
+    async verifyDocuments(userId: string): Promise<User | null> {
+        return this.userModel.findByIdAndUpdate(userId, { isDocumentVerified: true }, { new: true }).exec();
+    }
 }

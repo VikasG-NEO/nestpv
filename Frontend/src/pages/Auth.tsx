@@ -19,6 +19,8 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Signup profile fields
   const [fullName, setFullName] = useState('');
@@ -36,7 +38,7 @@ const Auth = () => {
 
 
 
-  const { signUp, user, loginWithMojoToken } = useAuth();
+  const { signUp, signIn, user, loginWithMojoToken } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -92,6 +94,24 @@ const Auth = () => {
       }
     });
   }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      toast({ title: "Error", description: "Please enter email and password", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    try {
+      await signIn(loginEmail, loginPassword);
+      toast({ title: "Success", description: "Logged in successfully" });
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({ title: "Login Failed", description: error.message || "Invalid credentials", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,10 +186,20 @@ const Auth = () => {
       setGeneratedId(`NN-${code}-${year}-XXXX`);
       setShowSuccess(true);
 
-      // Delay redirect to show success message
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 3000);
+      setGeneratedId(`NN-${code}-${year}-XXXX`);
+      setShowSuccess(true);
+
+      // Auto-login and redirect
+      try {
+        await signIn(email, password);
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 3000);
+      } catch (e) {
+        // Fallback if auto-login fails
+        toast({ title: "Account created", description: "Please log in with your credentials." });
+        setTimeout(() => navigate('/'), 3000);
+      }
 
     } catch (error: any) {
       toast({
@@ -231,9 +261,32 @@ const Auth = () => {
               </TabsList>
 
               <TabsContent value="signin">
-                <TabsContent value="signin">
-                  <div id="mojoauth-passwordless-form"></div>
-                </TabsContent>
+                <div className="space-y-6">
+                  <div className="space-y-2 text-center">
+                    <h3 className="text-sm text-muted-foreground">Sign in with Magic Link</h3>
+                    <div id="mojoauth-passwordless-form"></div>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t"></span></div>
+                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or with password</span></div>
+                  </div>
+
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email">Email</Label>
+                      <Input id="login-email" type="email" placeholder="m@example.com" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password">Password</Label>
+                      <Input id="login-password" type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Sign In
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
 
               <TabsContent value="signup">

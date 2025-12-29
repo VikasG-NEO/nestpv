@@ -6,9 +6,18 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter()
+    new FastifyAdapter({ bodyLimit: 50 * 1024 * 1024 }) // 50MB limit
   );
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  // Enable CORS with explicit options for frontend communication
+  app.enableCors({
+    origin: true, // Allow any origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Backend is running on: http://localhost:${port}`);
+  // Env loaded...
 }
 bootstrap();

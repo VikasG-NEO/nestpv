@@ -52,6 +52,9 @@ export class User {
   @Prop({ default: false })
   idCardGenerated: boolean;
 
+  @Prop({ default: false })
+  isDocumentVerified: boolean;
+
   @Prop({ type: Object })
   metadata?: Record<string, any>; // Flex field for future needs
 }

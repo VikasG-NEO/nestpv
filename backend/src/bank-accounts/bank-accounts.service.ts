@@ -13,7 +13,17 @@ export class BankAccountsService {
     }
 
     async create(userId: string, createDto: any): Promise<BankAccount> {
-        const account = new this.bankAccountModel({ ...createDto, userId });
+        // Simulate bank verification delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Mock verification success (Simulating Penny Drop)
+        const isVerified = true;
+
+        const account = new this.bankAccountModel({
+            ...createDto,
+            userId,
+            isVerified
+        });
         return account.save();
     }
 

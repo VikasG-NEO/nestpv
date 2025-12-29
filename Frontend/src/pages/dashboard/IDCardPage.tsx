@@ -5,9 +5,15 @@ import { IDCard } from "@/components/IDCard";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle, CreditCard } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { fetchAPI } from "@/lib/api";
+import { useState } from "react";
+
 export default function IDCardPage() {
   const { profile, loading } = useUserProfile();
   const { t } = useLanguage();
+  const [verifying, setVerifying] = useState(false);
 
   if (loading) {
     return (
@@ -17,7 +23,30 @@ export default function IDCardPage() {
     );
   }
 
-  const isVerified = profile?.fullName && profile?.email;
+  const isVerified = profile?.isDocumentVerified;
+
+  const handleVerify = async () => {
+    setVerifying(true);
+    try {
+      // Simulate API call
+      await fetchAPI('/users/verify-documents', { method: 'POST' });
+      toast({
+        title: "Verification Successful",
+        description: "Your documents have been verified via DigiLocker.",
+      });
+      // We might need to refresh profile here. The simplest way is to reload or use updated context.
+      // For now, reload window to see changes as useUserProfile might not auto-refresh.
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      toast({
+        title: "Verification Failed",
+        description: "Could not verify documents at this time.",
+        variant: "destructive"
+      });
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -38,18 +67,30 @@ export default function IDCardPage() {
                 <AlertCircle className="h-5 w-5 text-yellow-500" />
               )}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className={`font-medium ${isVerified ? "text-green-700" : "text-yellow-700"}`}>
-                  {isVerified ? t("idCard.verified") : t("idCard.pendingVerification")}
-                </h3>
-                <Badge variant={isVerified ? "default" : "secondary"}>
-                  {isVerified ? t("dashboard.active") : t("dashboard.pending")}
-                </Badge>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className={`font-medium ${isVerified ? "text-green-700" : "text-yellow-700"}`}>
+                    {isVerified ? "Identity Verified" : "Identity Verification Pending"}
+                  </h3>
+                  <Badge variant={isVerified ? "default" : "secondary"}>
+                    {isVerified ? "Verified" : "Action Required"}
+                  </Badge>
+                </div>
               </div>
               <p className={`text-sm mt-1 ${isVerified ? "text-green-600/80" : "text-yellow-600/80"}`}>
-                {isVerified ? t("idCard.verifiedDesc") : t("idCard.pendingDesc")}
+                {isVerified ? "Your identity documents have been verified via DigiLocker." : "Please verify your identity using DigiLocker to activate your ID card fully."}
               </p>
+
+              {!isVerified && (
+                <Button
+                  onClick={handleVerify}
+                  disabled={verifying}
+                  className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {verifying ? "Connecting..." : "Verify with DIGILocker"}
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>

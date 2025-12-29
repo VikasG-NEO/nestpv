@@ -12,8 +12,11 @@ export interface UserProfile {
   state?: string;
   country?: string;
   photo?: string;
+  community?: string;
+  nestId?: string;
   memberId?: string;
   createdAt?: string;
+  isDocumentVerified?: boolean;
 }
 
 export function useUserProfile() {
@@ -25,6 +28,9 @@ export function useUserProfile() {
     email: user.email,
     phone: user.phoneNumber,
     photo: user.photoURL,
+    nestId: user.nestId,
+    community: user.community,
+    isDocumentVerified: user.isDocumentVerified
     // Other fields might need actual fetching if not in User.
     // But for "Overview", these basic ones are used.
     // If we need age/gender etc, we might need to store them in User or fetch here.

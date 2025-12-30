@@ -33,6 +33,8 @@ export function DashboardSidebar({ onClose }: DashboardSidebarProps) {
         { href: "/dashboard/id-card", label: "nav.idCard", icon: CreditCard },
         { href: "/dashboard/bank", label: "nav.bank", icon: Building2 },
         { href: "/dashboard/support", label: "nav.support", icon: HelpCircle },
+        { href: "/dashboard/profile", label: "Profile", icon: User },
+        { href: "/dashboard/settings", label: "Settings", icon: Settings },
     ];
 
     const isActive = (path: string) => {

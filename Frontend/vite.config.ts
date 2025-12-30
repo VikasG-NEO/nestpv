@@ -2,7 +2,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
+import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig(({ mode }) => ({
     server: {
@@ -11,11 +11,17 @@ export default defineConfig(({ mode }) => ({
     },
     plugins: [
         react(),
-        mode === 'development' && componentTagger(),
-    ].filter(Boolean),
+        legacy({
+            targets: ['defaults', 'not IE 11'],
+        }),
+    ],
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
         },
     },
+    build: {
+        target: 'es2015',
+        outDir: 'dist',
+    }
 }));

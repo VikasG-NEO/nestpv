@@ -18,6 +18,8 @@ import CommunityPage from "./pages/dashboard/CommunityPage";
 import SupportPage from "./pages/dashboard/SupportPage";
 import IDCardPage from "./pages/dashboard/IDCardPage";
 import BankPage from "./pages/dashboard/BankPage";
+import ProfilePage from "./pages/dashboard/ProfilePage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -46,6 +48,8 @@ const App = () => (
                             <Route path="support" element={<SupportPage />} />
                             <Route path="id-card" element={<IDCardPage />} />
                             <Route path="bank" element={<BankPage />} />
+                            <Route path="profile" element={<ProfilePage />} />
+                            <Route path="settings" element={<SettingsPage />} />
                         </Route>
 
                         <Route path="*" element={<NotFound />} />

@@ -34,3 +34,19 @@ echo ""
 echo "7. EXTERNAL IP CHECK:"
 curl -s ifconfig.me
 echo ""
+
+echo "8. BACKEND STATUS (PM2):"
+if command -v pm2 &> /dev/null; then
+    pm2 list
+else
+    echo "PM2 not found"
+fi
+echo ""
+
+echo "9. BACKEND PORT CHECK (:3000):"
+ss -tulnp | grep :3000
+echo ""
+
+echo "10. INTERNAL BACKEND TEST:"
+curl -v http://localhost:3000 2>&1 | head -n 20
+echo ""

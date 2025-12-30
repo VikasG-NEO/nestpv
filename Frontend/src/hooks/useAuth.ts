@@ -13,6 +13,11 @@ export interface User {
   nestId?: string;
   community?: string;
   isDocumentVerified?: boolean;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
 }
 
 export function useAuth() {
@@ -41,7 +46,12 @@ export function useAuth() {
           role: profile.role,
           nestId: profile.nestId,
           community: profile.community,
-          isDocumentVerified: profile.isDocumentVerified
+          isDocumentVerified: profile.isDocumentVerified,
+          address: profile.address,
+          city: profile.city,
+          state: profile.state,
+          zip: profile.zip,
+          country: profile.country
         });
       }
     } catch (error) {
@@ -116,6 +126,7 @@ export function useAuth() {
     signInWithGoogle,
     loginWithMojoToken,
     signOut,
+    fetchProfile,
   };
 
   async function loginWithMojoToken(token: string, email: string) {

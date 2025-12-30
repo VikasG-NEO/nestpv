@@ -17,10 +17,12 @@ export interface UserProfile {
   memberId?: string;
   createdAt?: string;
   isDocumentVerified?: boolean;
+  role?: string;
+  zip?: string;
 }
 
 export function useUserProfile() {
-  const { user, loading } = useAuth();
+  const { user, loading, fetchProfile } = useAuth();
 
   // Map User to UserProfile
   const profile: UserProfile | null = user ? {
@@ -30,12 +32,14 @@ export function useUserProfile() {
     photo: user.photoURL,
     nestId: user.nestId,
     community: user.community,
-    isDocumentVerified: user.isDocumentVerified
-    // Other fields might need actual fetching if not in User.
-    // But for "Overview", these basic ones are used.
-    // If we need age/gender etc, we might need to store them in User or fetch here.
-    // For now, we reuse User data which came from /users/profile anyway.
+    isDocumentVerified: user.isDocumentVerified,
+    role: user.role,
+    address: user.address,
+    city: user.city,
+    state: user.state,
+    zip: user.zip,
+    country: user.country
   } : null;
 
-  return { profile, loading, error: null };
+  return { profile, loading, error: null, refetchProfile: fetchProfile };
 }

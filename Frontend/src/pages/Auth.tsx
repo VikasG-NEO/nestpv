@@ -45,10 +45,10 @@ const Auth = () => {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) { // Allow up to 50MB
         toast({
           title: "File too large",
-          description: "Please upload an image under 5MB",
+          description: "Please upload an image under 50MB",
           variant: "destructive",
         });
         return;
@@ -60,12 +60,6 @@ const Auth = () => {
       reader.readAsDataURL(file);
     }
   };
-
-  // Redirect if already logged in
-  if (user) {
-    navigate('/');
-    return null;
-  }
 
   // MojoAuth Login Setup
   useEffect(() => {
@@ -94,6 +88,12 @@ const Auth = () => {
       }
     });
   }, []);
+
+  // Redirect if already logged in
+  if (user) {
+    navigate('/');
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

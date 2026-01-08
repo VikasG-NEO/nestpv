@@ -32,6 +32,10 @@ import { TransactionsModule } from './transactions/transactions.module';
 
         return {
           uri: process.env.MONGODB_URI,
+          // Fix for "SSL alert number 80" / "internal error" on some networks
+          family: 4, // Force IPv4
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
         };
       },
     }),

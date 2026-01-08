@@ -12,7 +12,9 @@ import {
     Gift,
     HelpCircle,
     Building2,
-    X
+    X,
+    User,
+    Settings
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 

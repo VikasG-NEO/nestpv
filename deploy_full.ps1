@@ -48,5 +48,23 @@ $SSHCommand = "cd $RemoteBackendPath && npm install && npm run build && pm2 rest
 ssh -o StrictHostKeyChecking=no root@31.97.203.108 $SSHCommand
 
 Write-Host "---------------------------------------------------"
+Write-Host "Step 5: Updating Nginx Configuration..."
+$NginxConfPath = "nginx.conf"
+$RemoteNginxPath = "/etc/nginx/sites-available/nestunion"
+$RemoteNginxLink = "/etc/nginx/sites-enabled/nestunion"
+
+if (Test-Path $NginxConfPath) {
+    Write-Host "Uploading nginx.conf..."
+    scp -o StrictHostKeyChecking=no $NginxConfPath root@31.97.203.108:$RemoteNginxPath
+    
+    Write-Host "Linking and Testing Nginx config..."
+    $NginxCmd = "ln -sf $RemoteNginxPath $RemoteNginxLink && nginx -t && systemctl reload nginx"
+    ssh -o StrictHostKeyChecking=no root@31.97.203.108 $NginxCmd
+}
+else {
+    Write-Warning "nginx.conf not found! Skipping Nginx update."
+}
+
+Write-Host "---------------------------------------------------"
 Write-Host "Full Deployment Complete!"
 Write-Host "---------------------------------------------------"

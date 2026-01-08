@@ -24,14 +24,14 @@ if ($LASTEXITCODE -ne 0) {
 Set-Location ..
 
 # 2. Upload to Server
-Write-Host "Step 2: Uploading to /var/www/html on 31.97.203.108..."
+Write-Host "Step 2: Uploading to /var/www/nestunion-frontend on 31.97.203.108..."
 Write-Host "You may be prompted for the root password."
 
-# Clear remote directory first to avoid stale files
-ssh -o StrictHostKeyChecking=no root@31.97.203.108 "rm -rf /var/www/html/*"
+# Ensure remote directory exists and clean it
+ssh -o StrictHostKeyChecking=no root@31.97.203.108 "mkdir -p /var/www/nestunion-frontend && rm -rf /var/www/nestunion-frontend/*"
 
-# Using scp to copy contents of dist to /var/www/html
-scp -r -o StrictHostKeyChecking=no Frontend/dist/* root@31.97.203.108:/var/www/html/
+# Using scp to copy contents of dist
+scp -r -o StrictHostKeyChecking=no Frontend/dist/* root@31.97.203.108:/var/www/nestunion-frontend/
 
 # 3. Validation
 Write-Host "Step 3: Restarting Nginx to clear cache..."

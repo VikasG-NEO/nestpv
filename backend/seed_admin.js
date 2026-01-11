@@ -22,7 +22,12 @@ const User = mongoose.model('User', userSchema);
 
 async function seed() {
     try {
-        await mongoose.connect(MONGODB_URI);
+        console.log('Connecting to MongoDB...');
+        // Add connection options to fix DNS/IPv6 issues
+        await mongoose.connect(MONGODB_URI, {
+            family: 4, // Force IPv4
+            serverSelectionTimeoutMS: 5000
+        });
         console.log('Connected to MongoDB');
 
         const email = 'nestniffy@admin';

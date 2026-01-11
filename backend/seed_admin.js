@@ -1,6 +1,15 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const dns = require('dns');
+
+// Force using Google DNS to resolve ENOTFOUND on some VPS
+try {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+    console.log('Using Google DNS: 8.8.8.8');
+} catch (e) {
+    console.log('Could not set custom DNS servers', e.message);
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -58,6 +67,8 @@ async function seed() {
         console.log('Admin user seeded successfully.');
     } catch (error) {
         console.error('Error seeding admin:', error);
+        // Detailed error for debugging
+        if (error.reason) console.error('Reason:', error.reason);
     } finally {
         await mongoose.disconnect();
     }

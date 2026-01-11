@@ -19,9 +19,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
+  useAnalytics(); // Track page views
   const { profile } = useUserProfile();
   const { t } = useLanguage();
   const navigate = useNavigate();

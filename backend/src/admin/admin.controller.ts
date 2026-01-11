@@ -1,10 +1,24 @@
-
-import { Controller, Get, Patch, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, Param, Query } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
 export class AdminController {
     constructor(private readonly adminService: AdminService) { }
+
+    @Get('stats')
+    getStats() {
+        return this.adminService.getDashboardStats();
+    }
+
+    @Get('activity')
+    getActivity() {
+        return this.adminService.getSystemActivity();
+    }
+
+    @Post('analytics/view')
+    trackView(@Body() body: { path: string, userId?: string }) {
+        return this.adminService.trackPageView(body.path, body.userId);
+    }
 
     @Get('registrations')
     getRegistrations(@Query('status') status: string) {

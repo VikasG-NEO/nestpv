@@ -1,6 +1,6 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,8 @@ import {
     Building2,
     X,
     User,
-    Settings
+    Settings,
+    Shield
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
@@ -24,6 +25,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ onClose }: DashboardSidebarProps) {
     const { t } = useLanguage();
+    const { user } = useAuth();
     const location = useLocation();
 
     const links = [
@@ -38,6 +40,10 @@ export function DashboardSidebar({ onClose }: DashboardSidebarProps) {
         { href: "/dashboard/profile", label: "Profile", icon: User },
         { href: "/dashboard/settings", label: "Settings", icon: Settings },
     ];
+
+    if (user?.role === 'admin') {
+        links.push({ href: "/dashboard/admin", label: "Admin Dashboard", icon: Shield });
+    }
 
     const isActive = (path: string) => {
         if (path === "/dashboard" && location.pathname === "/dashboard") return true;

@@ -20,6 +20,7 @@ import IDCardPage from "./pages/dashboard/IDCardPage";
 import BankPage from "./pages/dashboard/BankPage";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
+import AdminStats from "./pages/dashboard/AdminStats";
 import NotFound from "./pages/NotFound";
 
 
@@ -50,6 +51,7 @@ const App = () => (
                             <Route path="bank" element={<BankPage />} />
                             <Route path="profile" element={<ProfilePage />} />
                             <Route path="settings" element={<SettingsPage />} />
+                            <Route path="admin" element={<AdminStats />} />
                         </Route>
 
                         <Route path="*" element={<NotFound />} />

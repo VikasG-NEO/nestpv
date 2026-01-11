@@ -1,66 +1,87 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+/**
+ * One-time admin seed script
+ * Safe to re-run (idempotent)
+ */
 
-// Hardcoded Standard Connection String to bypass VPS DNS/SRV issues
-// Based on: mongodb+srv://nestunion:nestunion222@nestunion.yqtys4s.mongodb.net
-const MONGODB_URI = "mongodb://nestunion:nestunion222@nestunion-shard-00-00.yqtys4s.mongodb.net:27017,nestunion-shard-00-01.yqtys4s.mongodb.net:27017,nestunion-shard-00-02.yqtys4s.mongodb.net:27017/?ssl=true&authSource=admin&w=majority";
+require("dotenv").config();
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema({
-    email: { type: String, unique: true },
-    password: { type: String, select: false },
-    role: { type: String, default: 'user' },
-    fullName: String,
-    nestId: String,
-    phone: String,
-}, { strict: false });
+const MONGODB_URI = process.env.MONGODB_URI;
 
-const User = mongoose.model('User', userSchema);
+if (!MONGODB_URI) {
+    console.error("❌ MONGODB_URI not found in environment");
+    process.exit(1);
+}
+
+/**
+ * User schema (minimal, flexible)
+ */
+const userSchema = new mongoose.Schema(
+    {
+        email: { type: String, unique: true },
+        password: { type: String, select: false },
+        role: { type: String, default: "user" },
+        fullName: String,
+        nestId: String,
+        phone: String,
+        idCardGenerated: Boolean,
+        isDocumentVerified: Boolean,
+    },
+    { strict: false }
+);
+
+const User = mongoose.model("User", userSchema);
 
 async function seed() {
     try {
-        console.log('Connecting to MongoDB via Direct Connection String...');
-        console.log('Target:', MONGODB_URI.replace(/:([^:@]+)@/, ':****@')); // Log without password
+        console.log("🔌 Connecting to MongoDB (SRV)...");
+        console.log(
+            "Target:",
+            MONGODB_URI.replace(/:([^:@]+)@/, ":****@")
+        );
 
-        // Connect with forceful IPv4
         await mongoose.connect(MONGODB_URI, {
-            family: 4,
-            serverSelectionTimeoutMS: 10000 // Wait up to 10s
+            serverSelectionTimeoutMS: 15000,
         });
-        console.log('Connected to MongoDB successfully!');
 
-        const email = 'nestniffy@admin';
-        const password = 'nestniffy@admin2028';
-        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log("✅ Connected to MongoDB");
 
-        const exists = await User.findOne({ email });
-        if (exists) {
-            console.log('Admin user exists. Updating...');
-            exists.role = 'admin';
-            await exists.save();
+        const email = "nestniffy@admin";
+        const plainPassword = "nestniffy@admin2028";
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+        let user = await User.findOne({ email }).select("+password");
+
+        if (user) {
+            console.log("ℹ️ Admin user exists. Updating role/password...");
+            user.role = "admin";
+            user.password = hashedPassword;
+            await user.save();
         } else {
-            console.log('Creating admin user...');
+            console.log("➕ Creating admin user...");
             await User.create({
                 email,
                 password: hashedPassword,
-                role: 'admin',
-                fullName: 'Super Admin',
-                nestId: 'ADMIN-001',
-                phone: '+910000000000',
+                role: "admin",
+                fullName: "Super Admin",
+                nestId: "ADMIN-001",
+                phone: "+910000000000",
                 idCardGenerated: true,
-                isDocumentVerified: true
+                isDocumentVerified: true,
             });
         }
 
-        console.log('Admin user seeded successfully.');
+        console.log("🎉 Admin user seeded successfully");
     } catch (error) {
-        console.error('Error seeding admin:', error);
-        console.log('\n--- TROUBLESHOOTING ---');
-        console.log('1. Ensure your IP is whitelisted in MongoDB Atlas (Network Access).');
-        console.log('2. Try adding 0.0.0.0/0 to the whitelist to allow all IPs.');
-        console.log('3. Your VPS might be blocking port 27017 outbound.');
+        console.error("❌ Error seeding admin:", error.message);
+        console.log("\n--- TROUBLESHOOTING ---");
+        console.log("1. Ensure VPS IP is whitelisted in MongoDB Atlas");
+        console.log("2. Ensure MONGODB_URI uses correct *cluster hostname*");
+        console.log("3. Ensure SRV DNS resolves (_mongodb._tcp.<cluster>)");
     } finally {
         await mongoose.disconnect();
+        process.exit(0);
     }
 }
 

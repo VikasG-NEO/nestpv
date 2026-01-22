@@ -35,6 +35,7 @@ const App = () => (
                     <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/auth" element={<Auth />} />
+                        <Route path="/join" element={<Auth />} />
                         <Route path="/register-company" element={<CompanyRegistration />} />
                         <Route path="/verify/:memberId" element={<VerifyID />} />
 

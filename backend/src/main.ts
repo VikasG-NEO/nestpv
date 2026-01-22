@@ -15,6 +15,12 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Security Headers
+  // @ts-ignore
+  await app.register(require('@fastify/helmet'), {
+    contentSecurityPolicy: false, // CSP can break things if not careful, disable for now or configure
+  });
+
   const port = process.env.PORT ?? 3000;
   await app.listen(port, '0.0.0.0');
   console.log(`Backend is running on: http://localhost:${port}`);

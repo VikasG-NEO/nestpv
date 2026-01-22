@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,17 @@ const Auth = () => {
   const { signUp, signIn, user, loginWithMojoToken } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      const signupTab = document.querySelector('[data-value="signup"]') as HTMLElement;
+      if (signupTab) signupTab.click();
+    }
+  }, [searchParams]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -168,7 +179,8 @@ const Auth = () => {
         state,
         country,
         photo,
-        community // Send profession/community
+        community, // Send profession/community
+        referralCode // Send referral code if captured
       });
 
       // Calculate ID for display (optional, if backend returns it immediately)
@@ -274,8 +286,8 @@ const Auth = () => {
 
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="login-email">Email</Label>
-                      <Input id="login-email" type="email" placeholder="m@example.com" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+                      <Label htmlFor="login-email">Email or ID</Label>
+                      <Input id="login-email" type="text" placeholder="m@example.com or ID" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="login-password">Password</Label>

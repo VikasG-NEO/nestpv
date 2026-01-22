@@ -61,4 +61,31 @@ export class UsersService {
     async verifyDocuments(userId: string): Promise<User | null> {
         return this.userModel.findByIdAndUpdate(userId, { isDocumentVerified: true }, { new: true }).exec();
     }
+
+    async seedAdmin(adminDetails: any) {
+        const existingAdmin = await this.userModel.findOne({ email: adminDetails.email });
+        if (!existingAdmin) {
+            // Create admin
+            // We need to hash password explicitly here because create() usually takes DTO, 
+            // but we want to ensure password is hashed. 
+            // Actually, if we use the auth service's register logic or just manually hash here.
+            // Since this is a service method, let's assume we pass hashed password or hash it here.
+            // To avoid circular dependency with AuthService, we'll hash it here.
+            // We need bcrypt.
+            const bcrypt = require('bcrypt');
+            const hashedPassword = await bcrypt.hash(adminDetails.password, 10);
+
+            const admin = new this.userModel({
+                ...adminDetails,
+                password: hashedPassword,
+                role: 'admin',
+                nestId: 'NN-ADMIN-001',
+                isEmailVerified: true
+            });
+            await admin.save();
+            console.log('Admin seeded successfully:', adminDetails.email);
+        } else {
+            console.log('Admin already exists.');
+        }
+    }
 }

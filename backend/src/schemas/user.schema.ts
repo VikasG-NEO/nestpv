@@ -57,6 +57,9 @@ export class User {
 
   @Prop({ type: Object })
   metadata?: Record<string, any>; // Flex field for future needs
+
+  @Prop()
+  referredBy?: string; // NestID of the referrer
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

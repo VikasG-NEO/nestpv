@@ -14,10 +14,12 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardSidebarProps {
   onSignOut: () => void;
@@ -37,6 +39,7 @@ const menuItems = [
 
 export function DashboardSidebar({ onSignOut }: DashboardSidebarProps) {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -87,6 +90,24 @@ export function DashboardSidebar({ onSignOut }: DashboardSidebarProps) {
                 </li>
               );
             })}
+
+            {/* Admin Link */}
+            {user?.role === 'admin' && (
+              <li>
+                <Link
+                  to="/dashboard/admin"
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    location.pathname === "/dashboard/admin"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-red-500 hover:bg-red-50 hover:text-red-600"
+                  )}
+                >
+                  <ShieldCheck className="h-5 w-5 shrink-0" />
+                  {!collapsed && <span>Admin Dashboard</span>}
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 

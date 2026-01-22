@@ -7,20 +7,20 @@ export interface WalletData {
 }
 
 export function useWallet() {
-  const [wallet, setWallet] = useState<WalletData>({
+  const [wallet] = useState<WalletData>({
     balance: 0,
     currency: 'INR',
     lastUpdated: new Date(),
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
 
-  const addMoney = async (amount: number) => {
+  const addMoney = async (_amount: number) => {
     // Placeholder - no backend connected
     return { success: false, error: 'No backend connected' };
   };
 
-  const withdrawMoney = async (amount: number) => {
+  const withdrawMoney = async (_amount: number) => {
     // Placeholder - no backend connected
     return { success: false, error: 'No backend connected' };
   };

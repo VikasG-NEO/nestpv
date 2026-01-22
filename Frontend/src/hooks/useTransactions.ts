@@ -10,16 +10,16 @@ export interface Transaction {
   status: 'completed' | 'pending' | 'failed';
 }
 
-export function useTransactions(limitCount: number = 50) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function useTransactions(_limitCount: number = 50) {
+  const [transactions] = useState<Transaction[]>([]);
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
 
   const addTransaction = async (
-    type: 'credit' | 'debit',
-    amount: number,
-    description: string,
-    category: string = 'Other'
+    _type: 'credit' | 'debit',
+    _amount: number,
+    _description: string,
+    _category: string = 'Other'
   ) => {
     // Placeholder - no backend connected
     return { success: false, error: 'No backend connected' };

@@ -45,6 +45,9 @@ export class Transaction {
     // Optional reference if transaction is linked to a specific entity (e.g. Order ID)
     @Prop()
     referenceId?: string;
+
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

@@ -16,6 +16,9 @@ export class Analytics {
 
     @Prop()
     metadata?: string; // extra info
+
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const AnalyticsSchema = SchemaFactory.createForClass(Analytics);

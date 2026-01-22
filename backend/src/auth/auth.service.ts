@@ -1,6 +1,7 @@
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import { WalletService } from '../wallet/wallet.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -8,7 +9,8 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
     constructor(
         private usersService: UsersService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private walletService: WalletService
     ) { }
 
     async validateUser(email: string, pass: string): Promise<any> {
@@ -35,7 +37,30 @@ export class AuthService {
         if (user.password) {
             user.password = await bcrypt.hash(user.password, 10);
         }
-        return this.usersService.create(user);
+
+        // Handle Referral
+        let referrer: any = null;
+        if (user.referralCode) {
+            referrer = await this.usersService.findByNestId(user.referralCode);
+            if (referrer) {
+                user.referredBy = referrer.nestId;
+            }
+        }
+
+        const newUser = await this.usersService.create(user);
+
+        // Credit Referral Bonus if referrer exists
+        if (referrer) {
+            const reward = Math.floor(Math.random() * 6) + 5; // Random between 5 and 10
+            const referrerId = referrer instanceof Object && '_id' in referrer ? (referrer as any)._id : referrer.id;
+            // Ensure we have the ID string
+            if (referrerId) {
+                await this.walletService.addMoney(referrerId.toString(), reward);
+                // Optionally log or notify?
+            }
+        }
+
+        return newUser;
     }
 
     async validateMojoUser(email: string): Promise<any> {
